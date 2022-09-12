@@ -10,6 +10,12 @@ async function send_message(token, chatId, text) {
     })
 }
 
-core.info(JSON.stringify(github.context.eventName));
-core.info(JSON.stringify(github.context.payload));
-await send_message(core.getInput('token'), core.getInput('chat'), github.context.eventName);
+(async function run() {
+    try {
+        core.info(JSON.stringify(github.context.eventName));
+        core.info(JSON.stringify(github.context.payload));
+        await send_message(core.getInput('token'), core.getInput('chat'), github.context.eventName);
+    } catch (error) {
+      core.setFailed(error.message);
+    }
+  })()
