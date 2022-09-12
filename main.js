@@ -7,6 +7,7 @@ async function send_message(token, chatId, text) {
         chat_id: chatId,
         text: text,
         parse_mode: 'MarkdownV2',
+        disable_web_page_preview: 'True',
     })
 }
 
@@ -46,10 +47,8 @@ function escape(text) {
             const branchUrl = `${repoUrl}/tree/${branchName}`;
             const commitMessage = payload.head_commit.message;
             const commitAuthor = payload.head_commit.author.username;
-            let message = `${statusIcon} [${escape(repoName)}/${escape(branchName)}](${escape(branchUrl)}) ${escape(workflow)}
-
-            \`\`\`${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})
-            `;
+            let message = `${statusIcon} [${escape(repoName)}/${escape(branchName)}](${escape(branchUrl)}) ${escape(workflow)} *${escape(status)}*
+\`\`\`${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})`;
             await send_message(telegramToken, chatId, message);    
         } else {
             core.setFailed(`unsupported eventName ${github.context.eventName}`);
