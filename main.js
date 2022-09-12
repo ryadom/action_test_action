@@ -10,12 +10,51 @@ async function send_message(token, chatId, text) {
     })
 }
 
+function escape(text) {
+    if (!text) {
+        return ''
+    }
+    for (let c of '.-{}=()_*[]~`>#+|!') {
+        text = text.replaceAll(c, '\\' + c);
+    }
+    return text;
+}
+
 (async function run() {
     try {
-        core.info(JSON.stringify(github.context.eventName));
-        core.info(JSON.stringify(github.context.payload));
-        await send_message(core.getInput('token'), core.getInput('chat'), github.context.eventName);
+        const telegramToken = core.getInput('token');
+        const chatId = core.getInput('chat');
+        const status = core.getInput('status');
+        const payload = github.context.payload;
+        const repoName = payload.repository.name;
+        const repoUrl = payload.repository.url;
+        const workflow = github.context.workflow;
+        let statusIcon;
+        switch (status) {
+            case 'success': statusIcon = '✅'; break;
+            case 'failure': statusIcon = '🔴'; break;
+            default: statusIcon = '⚠️'; break;
+        }
+        core.debug(JSON.stringify(payload));
+        if (github.context.eventName == 'push') {
+            const ref = github.context.ref;
+            if (!ref.startsWith('refs/heads/')) {
+                core.setFailed(`can't parse ref ${ref}`);
+                return;
+            }
+            const branchName = ref.substring(11);
+            const branchUrl = `${repoUrl}/tree/${branchName}`;
+            const commitMessage = payload.head_commit.message;
+            const commitAuthor = payload.head_commit.author.username;
+            let message = `${statusIcon} [${escape(repoName)}/${escape(branchName)}](${escape(branchUrl)}) ${escape(workflow)}
+
+            \`\`\`${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})
+            `;
+            await send_message(telegramToken, chatId, message);    
+        } else {
+            core.setFailed(`unsupported eventName ${github.context.eventName}`);
+        }
     } catch (error) {
       core.setFailed(error.message);
     }
-  })()
+  })();
