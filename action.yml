@@ -1,0 +1,16 @@
+name: 'Telegram Notification'
+description: 'Notifies about builds in telegram'
+author: 'ryadom'
+inputs: 
+  chat:
+    description: 'Chat to send: chat id or @channel_name'
+    required: true
+  token:
+    description: 'Telegram Bot token'
+    required: true
+  status:
+    description: 'Job status'
+    required: true
+runs:
+  using: 'node16'
+  main: 'main.js'
