@@ -15,6 +15,7 @@ function escape(text) {
     if (!text) {
         return ''
     }
+    text = String(text);
     for (let c of '.-{}=()_*[]~`>#+|!') {
         text = text.replaceAll(c, '\\' + c);
     }
