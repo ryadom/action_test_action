@@ -29,7 +29,7 @@ function escape(text) {
         const payload = github.context.payload;
         const repoName = payload.repository.name;
         const repoUrl = payload.repository.url;
-        const workflow = github.context.workflow;
+        const { ref, runId, workflow } = github.context;
         let statusIcon;
         switch (status) {
             case 'success': statusIcon = '✅'; break;
@@ -38,7 +38,6 @@ function escape(text) {
         }
         core.debug(JSON.stringify(payload));
         if (github.context.eventName == 'push') {
-            const ref = github.context.ref;
             if (!ref.startsWith('refs/heads/')) {
                 core.setFailed(`can't parse ref ${ref}`);
                 return;
@@ -48,7 +47,10 @@ function escape(text) {
             const commitMessage = payload.head_commit.message;
             const commitAuthor = payload.head_commit.author.username;
             let message = `${statusIcon} [${escape(repoName)}/${escape(branchName)}](${escape(branchUrl)}) ${escape(workflow)} *${escape(status)}*
-\`\`\`${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})`;
+
+\`\`\`${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})
+
+[View details](${escape(repoUrl)}/actions/runs/${escape(runId)})`;
             await send_message(telegramToken, chatId, message);    
         } else {
             core.setFailed(`unsupported eventName ${github.context.eventName}`);
