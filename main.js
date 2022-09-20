@@ -48,8 +48,8 @@ function escape(text) {
             const commitMessage = payload.head_commit.message;
             const commitAuthor = payload.head_commit.author.username;
             let message = `${statusIcon} [${escape(repoName)}/${escape(branchName)}](${escape(branchUrl)}) ${escape(workflow)} *${escape(status)}*
-
-\`\`\` ${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})
+\`\`\`
+${escape(commitMessage)}\`\`\` by [${escape(commitAuthor)}](http://github.com/${escape(commitAuthor)})
 
 [View details](${escape(repoUrl)}/actions/runs/${escape(runId)})`;
             await send_message(telegramToken, chatId, message);    
